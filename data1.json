@@ -1,0 +1,48 @@
+{
+    "vertices": {
+        "person": {
+            "Anand": {
+                "name": {
+                    "value": "Anand"
+                },
+                "gender": {
+                    "value": "male"
+                },
+                "age": {
+                    "value": 25
+                },
+                "state": {
+                    "value": "bhabhua"
+                }
+            }
+        }
+    },
+    "edges": {
+        "person": {
+            "Tom": {
+                "friendship": {
+                    "person": {
+                        "Anand": {
+                            "connect_day": {
+                                "value": "2015-05-30"
+                            }
+                        }
+                    }
+                }
+            },
+            "Anand": {
+                "friendship": {
+                    "person": {
+                        "Nancy": {
+                            "connect_day": {
+                                "value": "2015-01-01"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+this the data you gave me i have modified it according to my example

@@ -1,0 +1,20 @@
+{
+    "vertices": {
+        "person": {
+            "Rahul": {
+                "name": {
+                    "value": "Rahul"
+                },
+                "age": {
+                    "value": 28
+                },
+                "gender": {
+                    "value": "male"
+                },
+                "state": {
+                    "value": "california"
+                }
+            }
+        }
+    }
+}
