@@ -1,4 +1,4 @@
-package users_db
+package social_db
 
 import (
 	"context"
@@ -41,9 +41,14 @@ func connect() *mongo.Client {
 }
 
 //GetMongoInstance ...
-func GetMongoInstance() *mongo.Client {
+func getMongoInstance() *mongo.Client {
 	dial.Do(func() {
 		client = connect()
 	})
 	return client
+}
+
+//GetMongoCollection ...
+func GetMongoCollection(collectionName string) *mongo.Collection {
+	return getMongoInstance().Database("social").Collection(collectionName)
 }

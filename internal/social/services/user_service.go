@@ -1,9 +1,8 @@
 package services
 
 import (
-	users "crud_with_gin_gonic/internal/users/domain"
-	"crud_with_gin_gonic/internal/utils/date_utils"
-	"crud_with_gin_gonic/internal/utils/errors"
+	users "crud_with_TG/Golang-Poc-TG/internal/social/domain"
+	"crud_with_TG/Golang-Poc-TG/internal/utils/errors"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -25,9 +24,7 @@ type userServiceInterface interface {
 
 //CreateUser ...
 func (s *userService) CreateUser(user users.User) (*users.User, *errors.RestErr) {
-	user.Status = users.StatusActive
 	user.ID = primitive.NewObjectID()
-	user.CreateDate = date_utils.GetNowDBFormat()
 	if err := user.Insert(); err != nil {
 		return nil, err
 	}
