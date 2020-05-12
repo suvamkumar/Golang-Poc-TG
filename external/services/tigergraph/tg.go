@@ -86,6 +86,8 @@ func (tg TG) SyncDataBaseWithGraph(graphName string, verticesName string, edgeNa
 
 	}
 	reqData = reqData + jsonBody + "}},"
+
+	jsonBody = `"edges":{"person":{`
 	for i, v := range allFriends {
 		if i < len(allFriends)-1 {
 			jsonBody = jsonBody + createJSONBodyForEdges(v.From, v.To, "friendship") + ","
@@ -94,13 +96,15 @@ func (tg TG) SyncDataBaseWithGraph(graphName string, verticesName string, edgeNa
 		}
 	}
 	reqData = reqData + jsonBody + "}}}"
-
+	fmt.Println("--------------")
+	fmt.Println(reqData)
+	fmt.Println("--------------")
 	response, err := http.Post(tg.ConnectionString+"/"+graphName, "application/json", bytes.NewBuffer([]byte(reqData)))
 	if err != nil {
 		return false, errors.NewInternalServerError(err.Error())
 	}
 	b, err := ioutil.ReadAll(response.Body)
-	fmt.Println(b, err)
+	fmt.Println(string(b), err)
 	return true, nil
 }
 
