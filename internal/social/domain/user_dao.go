@@ -47,11 +47,6 @@ func (user *User) GetAllUser() ([]User, *errors.RestErr) {
 	for cursor.Next(ctx) {
 		var user User
 		cursor.Decode(&user)
-		fmt.Println("-----")
-		fmt.Println(cursor)
-		fmt.Println("-----")
-		fmt.Println(user)
-		fmt.Println("-----")
 		users = append(users, user)
 	}
 	return users, nil

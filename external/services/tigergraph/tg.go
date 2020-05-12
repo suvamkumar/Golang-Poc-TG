@@ -96,9 +96,6 @@ func (tg TG) SyncDataBaseWithGraph(graphName string, verticesName string, edgeNa
 		}
 	}
 	reqData = reqData + jsonBody + "}}}"
-	fmt.Println("--------------")
-	fmt.Println(reqData)
-	fmt.Println("--------------")
 	response, err := http.Post(tg.ConnectionString+"/"+graphName, "application/json", bytes.NewBuffer([]byte(reqData)))
 	if err != nil {
 		return false, errors.NewInternalServerError(err.Error())

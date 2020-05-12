@@ -4,7 +4,6 @@ import (
 	"context"
 	social_db "crud_with_TG/Golang-Poc-TG/internal/datasources/mongodb/socialdb"
 	"crud_with_TG/Golang-Poc-TG/internal/utils/errors"
-	"fmt"
 	"time"
 )
 
@@ -42,11 +41,6 @@ func (friendship *Friendship) GetAllUser() ([]Friendship, *errors.RestErr) {
 	for cursor.Next(ctx) {
 		var friend Friendship
 		cursor.Decode(&friend)
-		fmt.Println("-----")
-		fmt.Println(cursor)
-		fmt.Println("-----")
-		fmt.Println(friend)
-		fmt.Println("-----")
 		friends = append(friends, friend)
 	}
 	return friends, nil
