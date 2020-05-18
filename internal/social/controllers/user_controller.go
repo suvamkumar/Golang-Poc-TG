@@ -23,6 +23,20 @@ func Create(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
+//CreateManyUser ...
+func CreateManyUser(c *gin.Context) {
+	var user []users.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		restErr := errors.NewBadRequestError("Invalid Json Body")
+		c.JSON(restErr.Status, restErr)
+	}
+	result, err := services.UserService.CreateManyUser(user)
+	if err != nil {
+		c.JSON(err.Status, err)
+	}
+	c.JSON(http.StatusOK, result)
+}
+
 //GetUser ...
 func GetUser(c *gin.Context) {
 	id := c.Param("id")

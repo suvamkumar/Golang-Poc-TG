@@ -2,6 +2,8 @@ package users
 
 import (
 	"context"
+
+	"crud_with_TG/Golang-Poc-TG/external/services/tigergraph"
 	social_db "crud_with_TG/Golang-Poc-TG/internal/datasources/mongodb/socialdb"
 	"crud_with_TG/Golang-Poc-TG/internal/utils/errors"
 
@@ -11,17 +13,34 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-//Insert user ingto the database
-func (user *User) Insert() *errors.RestErr {
+//Insert user into the database
+func (user *User) Insert() (map[string]interface{}, *errors.RestErr) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	collection := social_db.GetMongoCollection("person")
 	_, err := collection.InsertOne(ctx, user)
 	if err != nil {
-		return errors.NewInternalServerError(err.Error())
+		return nil, errors.NewInternalServerError(err.Error())
 	}
+	tg := tigergraph.TG{ConnectionString: "http://localhost:9000/graph"}
+	response := tg.UpsertSingleVertex("social", "person", user.Name, user)
 	// id := fmt.Sprintf("%v", res.InsertedID)
 	// user.ID = id[10 : len(id)-2]
-	return nil
+	return response, nil
+}
+
+//InsertMany user into the database
+func (user *User) InsertMany(bData []interface{}) (map[string]interface{}, *errors.RestErr) {
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	collection := social_db.GetMongoCollection("person")
+	_, err := collection.InsertMany(ctx, bData)
+	if err != nil {
+		return nil, errors.NewInternalServerError(err.Error())
+	}
+	tg := tigergraph.TG{ConnectionString: "http://localhost:9000/graph"}
+	response := tg.UpsertMultipleVertex("social", "person", bData)
+	// id := fmt.Sprintf("%v", res.InsertedID)
+	// user.ID = id[10 : len(id)-2]
+	return response, nil
 }
 
 //GetUser get single user from users db

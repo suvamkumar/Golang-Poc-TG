@@ -15,7 +15,9 @@ var (
 type userService struct{}
 
 type userServiceInterface interface {
-	CreateUser(users.User) (*users.User, *errors.RestErr)
+	// CreateUser(users.User) (*users.User, *errors.RestErr)
+	CreateUser(users.User) (map[string]interface{}, *errors.RestErr)
+	CreateManyUser(usersData []users.User) (map[string]interface{}, *errors.RestErr)
 	UpdateUser(users.User, string) (*users.User, *errors.RestErr)
 	GetUser(id string) (*users.User, *errors.RestErr)
 	DeleteUser(id string) *errors.RestErr
@@ -23,12 +25,50 @@ type userServiceInterface interface {
 }
 
 //CreateUser ...
-func (s *userService) CreateUser(user users.User) (*users.User, *errors.RestErr) {
+// func (s *userService) CreateUser(user users.User) (*users.User, *errors.RestErr) {
+// 	user.ID = primitive.NewObjectID()
+// 	if err := user.Insert(); err != nil {
+// 		return nil, err
+// 	}
+// 	return &user, nil
+// }
+
+//CreateUser ...
+func (s *userService) CreateUser(user users.User) (map[string]interface{}, *errors.RestErr) {
 	user.ID = primitive.NewObjectID()
-	if err := user.Insert(); err != nil {
+	response, err := user.Insert()
+	if err != nil {
 		return nil, err
 	}
-	return &user, nil
+	m := map[string]interface{}{
+		"mongoResponse":      user,
+		"tigergraphResponse": response,
+	}
+	return m, nil
+}
+
+//CreateManyUser ...
+func (s *userService) CreateManyUser(usersData []users.User) (map[string]interface{}, *errors.RestErr) {
+	user := users.User{}
+	for i := 0; i < len(usersData); i++ {
+		usersData[i].ID = primitive.NewObjectID()
+		//	idsResponse = idsResponse + " , " + usersData[i].ID.String()
+	}
+	var dbData []interface{}
+	for i := 0; i < len(usersData); i++ {
+		dbData = append(dbData, usersData[i])
+	}
+	response, err := user.InsertMany(dbData)
+	if err != nil {
+		return nil, err
+	}
+
+	m := map[string]interface{}{
+		// "mongoResponse":      string(len(usersData)) + " new user with user ids " + idsResponse + " has been created created",
+		"mongoResponse":      usersData,
+		"tigergraphResponse": response,
+	}
+	return m, nil
 }
 
 //GetUser ...

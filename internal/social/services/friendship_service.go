@@ -2,6 +2,7 @@ package services
 
 import (
 	users "crud_with_TG/Golang-Poc-TG/internal/social/domain"
+	"crud_with_TG/Golang-Poc-TG/internal/utils/date_utils"
 	"crud_with_TG/Golang-Poc-TG/internal/utils/errors"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -15,7 +16,8 @@ var (
 type friendshipService struct{}
 
 type friendshipServiceInterface interface {
-	CreateUser(users.Friendship) (*users.Friendship, *errors.RestErr)
+	CreateUser(users.Friendship) (map[string]interface{}, *errors.RestErr)
+	CreateManyEdges(usersData []users.Friendship) (map[string]interface{}, *errors.RestErr)
 	UpdateUser(users.Friendship, string) (*users.Friendship, *errors.RestErr)
 	GetUser(id string) (*users.Friendship, *errors.RestErr)
 	DeleteUser(id string) *errors.RestErr
@@ -23,12 +25,42 @@ type friendshipServiceInterface interface {
 }
 
 //CreateUser ...
-func (s *friendshipService) CreateUser(user users.Friendship) (*users.Friendship, *errors.RestErr) {
-	user.ID = primitive.NewObjectID()
-	if err := user.Insert(); err != nil {
+func (s *friendshipService) CreateUser(friend users.Friendship) (map[string]interface{}, *errors.RestErr) {
+	friend.ID = primitive.NewObjectID()
+	friend.ConnectDate = date_utils.GetNowDBFormat()
+	response, err := friend.Insert()
+	if err != nil {
 		return nil, err
 	}
-	return &user, nil
+	m := map[string]interface{}{
+		"mongoResponse":      friend,
+		"tigergraphResponse": response,
+	}
+	return m, nil
+}
+
+//CreateManyEdges ...
+func (s *friendshipService) CreateManyEdges(friendsData []users.Friendship) (map[string]interface{}, *errors.RestErr) {
+	friends := users.Friendship{}
+	for i := 0; i < len(friendsData); i++ {
+		friendsData[i].ID = primitive.NewObjectID()
+		friendsData[i].ConnectDate = date_utils.GetNowDBFormat()
+	}
+	var dbData []interface{}
+	for i := 0; i < len(friendsData); i++ {
+		dbData = append(dbData, friendsData[i])
+	}
+	response, err := friends.InsertMany(dbData)
+	if err != nil {
+		return nil, err
+	}
+
+	m := map[string]interface{}{
+		// "mongoResponse":      string(len(usersData)) + " new user with user ids " + idsResponse + " has been created created",
+		"mongoResponse":      friendsData,
+		"tigergraphResponse": response,
+	}
+	return m, nil
 }
 
 //GetUser ...

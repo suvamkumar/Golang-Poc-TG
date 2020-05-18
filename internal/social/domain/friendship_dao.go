@@ -2,21 +2,48 @@ package users
 
 import (
 	"context"
+	"crud_with_TG/Golang-Poc-TG/external/services/tigergraph"
 	social_db "crud_with_TG/Golang-Poc-TG/internal/datasources/mongodb/socialdb"
 	"crud_with_TG/Golang-Poc-TG/internal/utils/errors"
 	"time"
 )
 
 //Insert user ingto the database
-func (friendship *Friendship) Insert() *errors.RestErr {
-	// ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	// _, err := collection.InsertOne(ctx, user)
-	// if err != nil {
-	// 	return errors.NewInternalServerError(err.Error())
-	// }
-	// id := fmt.Sprintf("%v", res.InsertedID)
-	// user.ID = id[10 : len(id)-2]
-	return nil
+// func (friendship *Friendship) Insert() *errors.RestErr {
+// 	// ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+// 	// _, err := collection.InsertOne(ctx, user)
+// 	// if err != nil {
+// 	// 	return errors.NewInternalServerError(err.Error())
+// 	// }
+// 	// id := fmt.Sprintf("%v", res.InsertedID)
+// 	// user.ID = id[10 : len(id)-2]
+// 	return nil
+// }
+
+//Insert ...
+func (friendship *Friendship) Insert() (map[string]interface{}, *errors.RestErr) {
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	collection := social_db.GetMongoCollection("friendship")
+	_, err := collection.InsertOne(ctx, friendship)
+	if err != nil {
+		return nil, errors.NewInternalServerError(err.Error())
+	}
+	tg := tigergraph.TG{ConnectionString: "http://localhost:9000/graph"}
+	response := tg.UpsertSingleEdge("social", "friendship", friendship.From, friendship.To)
+	return response, nil
+}
+
+//InsertMany user into the database
+func (friendship *Friendship) InsertMany(bData []interface{}) (map[string]interface{}, *errors.RestErr) {
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	collection := social_db.GetMongoCollection("friendship")
+	_, err := collection.InsertMany(ctx, bData)
+	if err != nil {
+		return nil, errors.NewInternalServerError(err.Error())
+	}
+	tg := tigergraph.TG{ConnectionString: "http://localhost:9000/graph"}
+	response := tg.UpsertManyEdges("social", "friendship", bData)
+	return response, nil
 }
 
 //GetUser get single user from users db

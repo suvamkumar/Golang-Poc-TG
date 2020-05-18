@@ -11,12 +11,26 @@ import (
 
 //CreateFriend ...
 func CreateFriend(c *gin.Context) {
-	var user users.User
-	if err := c.ShouldBindJSON(&user); err != nil {
+	var friend users.Friendship
+	if err := c.ShouldBindJSON(&friend); err != nil {
 		restErr := errors.NewBadRequestError("Invalid Json Body")
 		c.JSON(restErr.Status, restErr)
 	}
-	result, err := services.UserService.CreateUser(user)
+	result, err := services.FriendshipService.CreateUser(friend)
+	if err != nil {
+		c.JSON(err.Status, err)
+	}
+	c.JSON(http.StatusOK, result)
+}
+
+//CreateManyFriends ...
+func CreateManyFriends(c *gin.Context) {
+	var friend []users.Friendship
+	if err := c.ShouldBindJSON(&friend); err != nil {
+		restErr := errors.NewBadRequestError("Invalid Json Body")
+		c.JSON(restErr.Status, restErr)
+	}
+	result, err := services.FriendshipService.CreateManyEdges(friend)
 	if err != nil {
 		c.JSON(err.Status, err)
 	}
