@@ -2,7 +2,6 @@ package tigergraph
 
 import (
 	"bytes"
-
 	"crud_with_TG/Golang-Poc-TG/internal/utils/date_utils"
 	"crud_with_TG/Golang-Poc-TG/internal/utils/errors"
 	"encoding/json"
@@ -27,7 +26,6 @@ func (tg TG) GetAllTheVerticesOfAVertex(graphName string, vertexName string) ([]
 	}
 	result := getJSONResult(response)
 	return result, nil
-
 }
 
 //GetVerticeOfAVertexByID ...
@@ -66,7 +64,6 @@ func (tg TG) UpsertManyEdges(graphName string, edgeName string, postData interfa
 
 		} else {
 			reqData = reqData + createJSONBodyForEdges(m["from"].(string), m["to"].(string), edgeName, "")
-
 		}
 	}
 	reqData = reqData + "}}}"
@@ -123,14 +120,13 @@ func (tg TG) UpsertSingleEdge(graphName string, edgeName string, fromID string, 
 }
 
 //SyncDataBaseWithGraph ...
-func (tg TG) SyncDataBaseWithGraph(graphName string, verticesName string, edgeName string, person interface{}, frienship interface{}) (bool, *errors.RestErr) {
-
+func (tg TG) SyncDataBaseWithGraph(graphName string, verticesName string, edgeName string, person interface{}, frienship interface{}) map[string]interface{} {
 	reqData := `{ "vertices":{"` + verticesName + `":{`
 	dataValue := reflect.ValueOf(person)
 	var jsonBody = ""
 	for i := 0; i < dataValue.Len(); i++ {
 		m := make(map[string]interface{})
-		dataBytes, _ := json.Marshal(dataValue.Index(i))
+		dataBytes, _ := json.Marshal(dataValue.Index(i).Interface())
 		json.Unmarshal(dataBytes, &m)
 		var id string
 		for k, v := range m {
@@ -140,35 +136,32 @@ func (tg TG) SyncDataBaseWithGraph(graphName string, verticesName string, edgeNa
 			}
 		}
 		if i < dataValue.Len()-1 {
-			reqData = jsonBody + createJSONBodyForVertices(id, person) + ","
+			reqData = reqData + createJSONBodyForVertices(id, m) + ","
 		} else {
-			reqData = jsonBody + createJSONBodyForVertices(id, person)
+			reqData = reqData + createJSONBodyForVertices(id, m)
 		}
 	}
-	reqData = reqData + jsonBody + "}},"
-
+	reqData = reqData + "}},"
 	jsonBody = `"edges":{"person":{`
 	d := reflect.ValueOf(frienship)
 	for i := 0; i < d.Len(); i++ {
 		m := make(map[string]interface{})
-		bytesData, _ := json.Marshal(d.Index(i))
+		bytesData, _ := json.Marshal(d.Index(i).Interface())
 		json.Unmarshal(bytesData, &m)
-		if i <= d.Len()-1 {
-			reqData = jsonBody + createJSONBodyForEdges(m["from"].(string), m["to"].(string), edgeName, "") + ","
-
+		if i < d.Len()-1 {
+			jsonBody = jsonBody + createJSONBodyForEdges(m["from"].(string), m["to"].(string), edgeName, "") + ","
 		} else {
-			reqData = jsonBody + createJSONBodyForEdges(m["from"].(string), m["to"].(string), edgeName, "")
-
+			jsonBody = jsonBody + createJSONBodyForEdges(m["from"].(string), m["to"].(string), edgeName, "")
 		}
 	}
 	reqData = reqData + jsonBody + "}}}"
 	response, err := http.Post(tg.ConnectionString+"/"+graphName, "application/json", bytes.NewBuffer([]byte(reqData)))
 	if err != nil {
-		return false, errors.NewInternalServerError(err.Error())
+		return map[string]interface{}{"message": "could not make the post request to tiger graph"}
 	}
 	b, err := ioutil.ReadAll(response.Body)
 	fmt.Println(string(b), err)
-	return true, nil
+	return createResponse(b)
 }
 
 func getJSONResult(response *http.Response) [][]byte {

@@ -6,6 +6,7 @@ func mapUrls() {
 	router.POST("/users", user.Create)
 	router.POST("/users/createmanyuser", user.CreateManyUser)
 	router.POST("/friendship", user.CreateFriend)
+	router.POST("/syncdbwithtg", user.SyncWithDB)
 	router.POST("/friendship/createmanyfriends", user.CreateManyFriends)
 	router.PATCH("/users/:id", user.UpdateUser)
 	router.DELETE("/users/:id", user.DeleteUser)

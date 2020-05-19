@@ -1,6 +1,7 @@
 package services
 
 import (
+	"crud_with_TG/Golang-Poc-TG/external/services/tigergraph"
 	users "crud_with_TG/Golang-Poc-TG/internal/social/domain"
 	"crud_with_TG/Golang-Poc-TG/internal/utils/errors"
 
@@ -18,6 +19,7 @@ type userServiceInterface interface {
 	// CreateUser(users.User) (*users.User, *errors.RestErr)
 	CreateUser(users.User) (map[string]interface{}, *errors.RestErr)
 	CreateManyUser(usersData []users.User) (map[string]interface{}, *errors.RestErr)
+	SyncDBWithTG() (map[string]interface{}, *errors.RestErr)
 	UpdateUser(users.User, string) (*users.User, *errors.RestErr)
 	GetUser(id string) (*users.User, *errors.RestErr)
 	DeleteUser(id string) *errors.RestErr
@@ -83,6 +85,29 @@ func (s *userService) GetUser(id string) (*users.User, *errors.RestErr) {
 		return nil, err
 	}
 	return &user, nil
+}
+
+//GetUser ...
+func (s *userService) SyncDBWithTG() (map[string]interface{}, *errors.RestErr) {
+	user := users.User{}
+	allUser, err := user.GetAllUser()
+	if err != nil {
+		return nil, err
+	}
+	friends := users.Friendship{}
+	allFriends, err := friends.GetAllFriends()
+	if err != nil {
+		return nil, err
+	}
+	tg := tigergraph.TG{ConnectionString: "http://localhost:9000/graph"}
+	response := tg.SyncDataBaseWithGraph("social", "person", "friendship", allUser, allFriends)
+
+	m := map[string]interface{}{
+		// "mongoResponse":      string(len(usersData)) + " new user with user ids " + idsResponse + " has been created created",
+		"message":            "synchronization successfull",
+		"tigergraphResponse": response,
+	}
+	return m, nil
 }
 
 //GetAllUser ...

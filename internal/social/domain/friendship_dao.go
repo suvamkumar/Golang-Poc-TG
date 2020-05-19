@@ -55,8 +55,8 @@ func (friendship *Friendship) GetUser(id string) *errors.RestErr {
 	return nil
 }
 
-//GetAllUser ...
-func (friendship *Friendship) GetAllUser() ([]Friendship, *errors.RestErr) {
+//GetAllFriends ...
+func (friendship *Friendship) GetAllFriends() ([]Friendship, *errors.RestErr) {
 	friends := make([]Friendship, 0)
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	collection := social_db.GetMongoCollection("friendship")

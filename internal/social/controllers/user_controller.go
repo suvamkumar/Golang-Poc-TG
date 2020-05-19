@@ -37,6 +37,15 @@ func CreateManyUser(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
+//SyncWithDB ...
+func SyncWithDB(c *gin.Context) {
+	result, err := services.UserService.SyncDBWithTG()
+	if err != nil {
+		c.JSON(err.Status, err)
+	}
+	c.JSON(http.StatusOK, result)
+}
+
 //GetUser ...
 func GetUser(c *gin.Context) {
 	id := c.Param("id")

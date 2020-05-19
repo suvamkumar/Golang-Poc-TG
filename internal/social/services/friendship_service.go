@@ -80,7 +80,7 @@ func (s *friendshipService) GetUser(id string) (*users.Friendship, *errors.RestE
 //GetAllUser ...
 func (s *friendshipService) GetAllUser() ([]users.Friendship, *errors.RestErr) {
 	friends := users.Friendship{}
-	return friends.GetAllUser()
+	return friends.GetAllFriends()
 }
 
 //UpdateUser ...
