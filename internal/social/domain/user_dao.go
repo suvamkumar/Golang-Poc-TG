@@ -38,8 +38,6 @@ func (user *User) InsertMany(bData []interface{}) (map[string]interface{}, *erro
 	}
 	tg := tigergraph.TG{ConnectionString: "http://localhost:9000/graph"}
 	response := tg.UpsertMultipleVertex("social", "person", bData)
-	// id := fmt.Sprintf("%v", res.InsertedID)
-	// user.ID = id[10 : len(id)-2]
 	return response, nil
 }
 

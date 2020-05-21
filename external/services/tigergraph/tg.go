@@ -5,7 +5,6 @@ import (
 	"crud_with_TG/Golang-Poc-TG/internal/utils/date_utils"
 	"crud_with_TG/Golang-Poc-TG/internal/utils/errors"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"reflect"
@@ -86,7 +85,6 @@ func (tg TG) UpsertMultipleVertex(graphName string, verticesName string, postBod
 		json.Unmarshal(dataBytes, &m)
 		var id string
 		for k, v := range m {
-			fmt.Println(k, v)
 			if strings.EqualFold(k, "name") {
 				id = v.(string)
 			}
@@ -130,7 +128,6 @@ func (tg TG) SyncDataBaseWithGraph(graphName string, verticesName string, edgeNa
 		json.Unmarshal(dataBytes, &m)
 		var id string
 		for k, v := range m {
-			fmt.Println(k, v)
 			if strings.EqualFold(k, "name") {
 				id = v.(string)
 			}
@@ -160,7 +157,6 @@ func (tg TG) SyncDataBaseWithGraph(graphName string, verticesName string, edgeNa
 		return map[string]interface{}{"message": "could not make the post request to tiger graph"}
 	}
 	b, err := ioutil.ReadAll(response.Body)
-	fmt.Println(string(b), err)
 	return createResponse(b)
 }
 
